@@ -3,8 +3,20 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Creator vs Consumer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>OUTPUT</title>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OUTPUT">
+  
+  <!-- iOS Icons -->
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2592/2592317.png">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,53 +40,51 @@
       --bg: #000;
       --fg: #fff;
     }
+    
     body {
       font-family: 'Syne', sans-serif;
       background-color: var(--bg);
       color: var(--fg);
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      overflow-x: hidden;
+      padding-top: env(safe-area-inset-top);
     }
-    .font-mono { font-family: 'Space Mono', monospace; }
-    .font-pixel { font-family: 'Silkscreen', cursive; }
-    
+
+    #root {
+      min-height: 100vh;
+    }
+
     .safe-bottom {
-      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
     }
-    .glass {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-    ::selection {
-      background: var(--fg);
-      color: var(--bg);
-    }
-    /* Smooth transitions */
-    * {
-      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-    }
-    /* Hide scrollbar for density grid */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+
+    /* Standard scrollbar behavior */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+    /* Normal button feedback */
+    button:active {
+      opacity: 0.7;
     }
   </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react/": "https://esm.sh/react@^19.2.3/"
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3"
   }
 }
 </script>
 </head>
 <body class="bg-black text-white">
   <div id="root"></div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
+      });
+    }
+  </script>
 </body>
 </html>
