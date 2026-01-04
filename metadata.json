@@ -1,0 +1,5 @@
+{
+  "name": "OUTPUT",
+  "description": "A minimalist black and white dashboard to track your daily output habits. Mark yourself as a creator (green) or consumer (red) to visualize your monthly and yearly progress.",
+  "requestFramePermissions": []
+}
