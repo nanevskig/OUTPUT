@@ -43,7 +43,16 @@ const DailyInput: React.FC<DailyInputProps> = ({ onLog, existingLog }) => {
 
   return (
     <div className="relative flex flex-col min-h-screen px-8 animate-in fade-in duration-700">
-      
+      <style>{`
+        @keyframes question-retro-blink {
+          0%, 49.9% { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
+        .animate-question-blink {
+          animation: question-retro-blink 1s infinite;
+        }
+      `}</style>
+
       {/* Top Centered Date */}
       <div className="w-full text-center pt-12 shrink-0">
         <p className="opacity-40 uppercase tracking-[0.4em] text-[10px] font-bold font-mono">
@@ -55,7 +64,7 @@ const DailyInput: React.FC<DailyInputProps> = ({ onLog, existingLog }) => {
       <div className="flex-1 flex flex-col items-center justify-center -mt-10">
         <div className="text-center mb-16">
           <h1 className="text-xl font-extrabold tracking-[0.3em] leading-relaxed uppercase font-sans">
-            WHO WERE <br/> YOU TODAY?
+            WHO WERE <br/> YOU TODAY<span className={!existingLog ? 'animate-question-blink inline-block' : 'inline-block'}>?</span>
           </h1>
         </div>
 

@@ -23,13 +23,13 @@ const System: React.FC<SystemProps> = ({ state, updateState }) => {
   const currentQuote = QUOTES[quoteIndex];
 
   return (
-    <div className="p-8 pb-40 max-w-lg mx-auto animate-in fade-in duration-700">
+    <div className="min-h-[calc(100vh-80px)] p-8 pb-24 max-w-lg mx-auto animate-in fade-in duration-700 flex flex-col">
       <header className="mb-10">
         <h2 className="text-3xl font-extrabold tracking-tight uppercase mb-1 font-sans">System</h2>
         <p className="opacity-40 text-[9px] font-bold tracking-[0.4em] uppercase font-mono">Parameters</p>
       </header>
 
-      <div className="space-y-4">
+      <div className="space-y-4 flex-grow">
         {/* Notifications Toggle */}
         <div className="flex items-center justify-between p-8 rounded-[40px] bg-white/[0.02] border border-white/[0.03]">
           <div>
@@ -56,16 +56,17 @@ const System: React.FC<SystemProps> = ({ state, updateState }) => {
             className="w-full bg-transparent border-b border-white/[0.1] rounded-none pb-2 text-3xl font-bold font-mono focus:border-white focus:outline-none transition-colors text-white"
           />
         </div>
+      </div>
 
-        <div className="pt-8">
-          <div className="p-10 rounded-[45px] bg-white/[0.02] border border-white/[0.05] relative text-center">
-            <p className="text-sm font-bold leading-relaxed opacity-60 font-sans italic mb-6">
-              "{currentQuote.text}"
-            </p>
-            <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-emerald-500 font-pixel">
-              // {currentQuote.author}
-            </p>
-          </div>
+      {/* Motivational Quote moved even lower by reducing parent pb */}
+      <div className="mt-12">
+        <div className="p-10 rounded-[45px] bg-white/[0.02] border border-white/[0.05] relative text-center">
+          <p className="text-sm font-bold leading-relaxed opacity-60 font-sans italic mb-6">
+            "{currentQuote.text}"
+          </p>
+          <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-emerald-500 font-pixel">
+            // {currentQuote.author}
+          </p>
         </div>
       </div>
     </div>

@@ -28,13 +28,13 @@ const Settings: React.FC<SettingsProps> = ({ state, updateState }) => {
   };
 
   return (
-    <div className="p-8 pb-32 max-w-lg mx-auto animate-in fade-in duration-700">
+    <div className="min-h-[calc(100vh-80px)] p-8 pb-24 max-w-lg mx-auto animate-in fade-in duration-700 flex flex-col">
       <header className="mb-12">
         <h2 className="text-3xl font-extrabold tracking-[0.1em] uppercase mb-1 font-sans">Settings</h2>
         <p className="opacity-40 text-[9px] font-bold tracking-[0.4em] uppercase font-mono">Preferences</p>
       </header>
 
-      <div className="space-y-4">
+      <div className="space-y-4 flex-grow">
         {/* Notifications Toggle */}
         <div className="flex items-center justify-between p-8 rounded-[40px] bg-white/[0.02] border border-white/[0.03]">
           <div>
@@ -59,17 +59,17 @@ const Settings: React.FC<SettingsProps> = ({ state, updateState }) => {
             className="w-full bg-transparent border-b border-white/[0.1] rounded-none pb-2 text-2xl font-bold font-mono focus:border-white focus:outline-none transition-colors text-white"
           />
         </div>
+      </div>
 
-        {/* Minimalist Quote Section */}
-        <div className="pt-12">
-          <div className="p-10 rounded-[45px] bg-white/[0.02] border border-white/[0.05] relative overflow-hidden text-center">
-            <p className="text-base font-bold leading-relaxed tracking-wide opacity-80 font-sans italic mb-8">
-              "{dailyQuote.text}"
-            </p>
-            <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-emerald-500 font-pixel">
-              // {dailyQuote.author}
-            </p>
-          </div>
+      {/* Minimalist Quote Section moved even lower */}
+      <div className="mt-12">
+        <div className="p-10 rounded-[45px] bg-white/[0.02] border border-white/[0.05] relative overflow-hidden text-center">
+          <p className="text-base font-bold leading-relaxed tracking-wide opacity-80 font-sans italic mb-8">
+            "{dailyQuote.text}"
+          </p>
+          <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-emerald-500 font-pixel">
+            // {dailyQuote.author}
+          </p>
         </div>
       </div>
     </div>
