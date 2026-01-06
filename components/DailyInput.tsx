@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ActivityType } from '../types';
 
 interface DailyInputProps {
@@ -13,12 +13,13 @@ const DailyInput: React.FC<DailyInputProps> = ({ onLog, existingLog }) => {
   const [popupStatus, setPopupStatus] = useState<PopupStatus>('idle');
   const [lastSelected, setLastSelected] = useState<ActivityType | null>(null);
   
-  const today = new Date();
-  const dateString = today.toLocaleDateString('en-US', { 
-    weekday: 'short', 
-    month: 'short', 
-    day: 'numeric' 
-  });
+  const dateString = useMemo(() => {
+    return new Date().toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  }, [existingLog]);
 
   const handleSelection = (type: ActivityType) => {
     if (existingLog) return;
@@ -41,6 +42,15 @@ const DailyInput: React.FC<DailyInputProps> = ({ onLog, existingLog }) => {
     }
   }, [popupStatus]);
 
+  const getLogColor = (log: ActivityType) => {
+    switch (log) {
+      case 'creator': return 'text-emerald-500';
+      case 'consumer': return 'text-red-500';
+      case 'balanced': return 'text-yellow-400';
+      default: return 'text-white';
+    }
+  };
+
   return (
     <div className="relative flex flex-col min-h-screen px-8 animate-in fade-in duration-700">
       <style>{`
@@ -60,52 +70,59 @@ const DailyInput: React.FC<DailyInputProps> = ({ onLog, existingLog }) => {
         </p>
       </div>
 
-      {/* Main Content: Question + Buttons (Centering logic) */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center -mt-10">
-        <div className="text-center mb-16">
-          <h1 className="text-xl font-extrabold tracking-[0.3em] leading-relaxed uppercase font-sans">
-            WHO WERE <br/> YOU TODAY<span className={!existingLog ? 'animate-question-blink inline-block' : 'inline-block'}>?</span>
-          </h1>
-        </div>
+        {!existingLog ? (
+          <>
+            <div className="text-center mb-16">
+              <h1 className="text-xl font-extrabold tracking-[0.3em] leading-relaxed uppercase font-sans">
+                WHO WERE <br/> YOU TODAY<span className="animate-question-blink inline-block">?</span>
+              </h1>
+            </div>
 
-        <div className="flex flex-col w-full max-w-[260px] gap-6">
-          <button
-            disabled={!!existingLog}
-            onClick={() => handleSelection('creator')}
-            className={`group relative h-20 rounded-full flex flex-col items-center justify-center transition-all overflow-hidden ${
-              existingLog === 'creator' 
-                ? 'bg-emerald-500 text-black shadow-[0_0_30px_-5px_rgba(16,185,129,0.3)]' 
-                : existingLog
-                  ? 'opacity-20 border border-white/[0.05] text-white cursor-not-allowed'
-                  : 'bg-white/[0.02] border border-white/[0.05] text-white active:scale-95 hover:border-emerald-500/50'
-            }`}
-          >
-            <span className="text-sm font-extrabold tracking-[0.2em] uppercase z-10 font-sans text-inherit">Creator</span>
-            {!existingLog && (
-              <div className="absolute inset-0 bg-emerald-500 opacity-0 group-hover:opacity-5 transition-opacity" />
-            )}
-          </button>
+            <div className="flex flex-col w-full max-w-[260px] gap-4">
+              <button
+                onClick={() => handleSelection('creator')}
+                className="group relative h-16 rounded-full flex flex-col items-center justify-center transition-all overflow-hidden bg-white/[0.02] border border-white/[0.05] text-white active:scale-95 hover:border-emerald-500/50"
+              >
+                <span className="text-xs font-extrabold tracking-[0.2em] uppercase z-10 font-sans text-inherit">Creator</span>
+                <div className="absolute inset-0 bg-emerald-500 opacity-0 group-hover:opacity-5 transition-opacity" />
+              </button>
 
-          <button
-            disabled={!!existingLog}
-            onClick={() => handleSelection('consumer')}
-            className={`group relative h-20 rounded-full flex flex-col items-center justify-center transition-all overflow-hidden ${
-              existingLog === 'consumer'
-                ? 'bg-red-500 text-black shadow-[0_0_30px_-5px_rgba(239,68,68,0.3)]' 
-                : existingLog
-                  ? 'opacity-20 border border-white/[0.05] text-white cursor-not-allowed'
-                  : 'bg-white/[0.02] border border-white/[0.05] text-white active:scale-95 hover:border-red-500/50'
-            }`}
-          >
-            <span className="text-sm font-extrabold tracking-[0.2em] uppercase z-10 font-sans text-inherit">Consumer</span>
-            {!existingLog && (
-              <div className="absolute inset-0 bg-red-500 opacity-0 group-hover:opacity-5 transition-opacity" />
-            )}
-          </button>
-        </div>
+              <button
+                onClick={() => handleSelection('consumer')}
+                className="group relative h-16 rounded-full flex flex-col items-center justify-center transition-all overflow-hidden bg-white/[0.02] border border-white/[0.05] text-white active:scale-95 hover:border-red-500/50"
+              >
+                <span className="text-xs font-extrabold tracking-[0.2em] uppercase z-10 font-sans text-inherit">Consumer</span>
+                <div className="absolute inset-0 bg-red-500 opacity-0 group-hover:opacity-5 transition-opacity" />
+              </button>
+
+              <button
+                onClick={() => handleSelection('balanced')}
+                className="group relative h-16 rounded-full flex flex-col items-center justify-center transition-all overflow-hidden bg-white/[0.02] border border-white/[0.05] text-white active:scale-95 hover:border-yellow-400/50"
+              >
+                <span className="text-xs font-extrabold tracking-[0.2em] uppercase z-10 font-sans text-inherit">Balanced</span>
+                <div className="absolute inset-0 bg-yellow-400 opacity-0 group-hover:opacity-5 transition-opacity" />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="text-center animate-in zoom-in-95 duration-700">
+            <h1 className="text-xs font-bold tracking-[0.4em] opacity-40 uppercase font-mono mb-8">
+              {existingLog === 'balanced' ? 'TODAY YOU WERE:' : 'TODAY YOU WERE A:'}
+            </h1>
+            <div className={`text-5xl font-black italic tracking-tighter uppercase font-sans ${getLogColor(existingLog)}`}>
+              {existingLog}<span className="animate-question-blink inline-block">.</span>
+            </div>
+            
+            <p className="mt-16 text-[9px] font-bold tracking-[0.4em] opacity-30 uppercase font-mono animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-500 fill-mode-forwards">
+              See you tomorrow
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* Footer Text: Significantly higher from the Bottom Navigation Area */}
+      {/* Footer Text */}
       <div className="mt-auto pb-32 text-center shrink-0">
         <div className="w-8 h-[1px] bg-white/[0.1] mx-auto"></div>
         <p className="mt-6 opacity-30 text-[8px] tracking-[0.5em] font-medium uppercase font-pixel">
@@ -113,7 +130,7 @@ const DailyInput: React.FC<DailyInputProps> = ({ onLog, existingLog }) => {
         </p>
       </div>
 
-      {/* Fade-only Popup Overlay */}
+      {/* Pop-up Overlay */}
       {popupStatus !== 'idle' && (
         <div 
           className={`fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm pointer-events-none transition-opacity duration-500 ${
@@ -131,7 +148,7 @@ const DailyInput: React.FC<DailyInputProps> = ({ onLog, existingLog }) => {
             
             <div className="space-y-1">
               <span className="text-[7px] font-pixel opacity-40 uppercase tracking-[0.4em] block mb-2 text-white">Entry Logged</span>
-              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">
+              <h2 className={`text-2xl font-black uppercase italic tracking-tighter ${lastSelected ? getLogColor(lastSelected) : 'text-white'}`}>
                 {lastSelected}
               </h2>
             </div>

@@ -11,15 +11,15 @@
   "scope": "./",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2592/2592317.png",
-      "type": "image/png",
-      "sizes": "192x192",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0id2hpdGUiLz4KICA8cGF0aCBkPSJNMTU4LjUgMTEySDQzNS41QzQ1NS41IDExMiA0NTUuNSAxMjggNDUwIDE0OEwzODAuNSA0MjhDMzc1IDQ0OCAzNTUgNDY0IDMzNSA0NjRINTguNUMzOC41IDQ2NCAzOC41IDQ0OCA0NCA0MjhMMTEzLjUgMTQ4QzExOSAxMjggMTM4LjUgMTEyIDE1OC41IDExMlpNMjE1IDIwOEgyNThMMjMwIDM2OEgxODdMMjE1IDIwOFoiIGZpbGw9ImJsYWNrIi8+Cjwvc3ZnPg==",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
       "purpose": "any maskable"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2592/2592317.png",
-      "type": "image/png",
-      "sizes": "512x512",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0id2hpdGUiLz4KICA8cGF0aCBkPSJNMTU4LjUgMTEySDQzNS41QzQ1NS41IDExMiA0NTUuNSAxMjggNDUwIDE0OEwzODAuNSA0MjhDMzc1IDQ0OCAzNTUgNDY0IDMzNSA0NjRINTguNUMzOC41IDQ2NCAzOC41IDQ0OCA0NCA0MjhMMTEzLjUgMTQ4QzExOSAxMjggMTM4LjUgMTEyIDE1OC41IDExMlpNMjE1IDIwOEgyNThMMjMwIDM2OEgxODdMMjE1IDIwOFoiIGZpbGw9ImJsYWNrIi8+Cjwvc3ZnPg==",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
       "purpose": "any maskable"
     }
   ],

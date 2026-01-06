@@ -1,5 +1,5 @@
 
-export type ActivityType = 'creator' | 'consumer';
+export type ActivityType = 'creator' | 'consumer' | 'balanced';
 
 export interface DailyLog {
   date: string; // YYYY-MM-DD

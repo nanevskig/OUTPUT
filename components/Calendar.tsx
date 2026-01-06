@@ -36,6 +36,7 @@ const Calendar: React.FC<CalendarProps> = ({ logs }) => {
       let dotColor = 'bg-transparent';
       if (activity === 'creator') dotColor = 'bg-emerald-500';
       if (activity === 'consumer') dotColor = 'bg-red-500';
+      if (activity === 'balanced') dotColor = 'bg-yellow-400';
 
       days.push(
         <div 
@@ -48,6 +49,13 @@ const Calendar: React.FC<CalendarProps> = ({ logs }) => {
       );
     }
     return days;
+  };
+
+  const getCount = (type: ActivityType) => {
+    const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+    return Object.entries(logs).filter(([date, t]) => {
+      return t === type && date.startsWith(monthPrefix);
+    }).length;
   };
 
   return (
@@ -77,30 +85,18 @@ const Calendar: React.FC<CalendarProps> = ({ logs }) => {
         {renderDays()}
       </div>
 
-      <div className="mt-16 grid grid-cols-2 gap-px bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-900">
-        <div className="bg-black p-6">
-          <p className="text-[8px] text-zinc-500 uppercase tracking-[0.3em] mb-2 font-bold">Creation</p>
-          <div className="flex items-baseline gap-1">
-            <p className="text-2xl font-light text-emerald-500 tracking-tighter">
-              {Object.values(logs).filter((t, i) => {
-                 const d = Object.keys(logs)[i];
-                 return t === 'creator' && d.startsWith(`${year}-${String(month+1).padStart(2, '0')}`);
-              }).length}
-            </p>
-            <span className="text-[8px] text-zinc-700 font-bold uppercase tracking-widest">Days</span>
-          </div>
+      <div className="mt-16 grid grid-cols-3 gap-px bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-900">
+        <div className="bg-black p-4 text-center">
+          <p className="text-[7px] text-zinc-500 uppercase tracking-[0.2em] mb-1 font-bold">Creation</p>
+          <p className="text-xl font-light text-emerald-500 tracking-tighter">{getCount('creator')}</p>
         </div>
-        <div className="bg-black p-6">
-          <p className="text-[8px] text-zinc-500 uppercase tracking-[0.3em] mb-2 font-bold">Consumption</p>
-          <div className="flex items-baseline gap-1">
-            <p className="text-2xl font-light text-red-500 tracking-tighter">
-              {Object.values(logs).filter((t, i) => {
-                 const d = Object.keys(logs)[i];
-                 return t === 'consumer' && d.startsWith(`${year}-${String(month+1).padStart(2, '0')}`);
-              }).length}
-            </p>
-            <span className="text-[8px] text-zinc-700 font-bold uppercase tracking-widest">Days</span>
-          </div>
+        <div className="bg-black p-4 text-center">
+          <p className="text-[7px] text-zinc-500 uppercase tracking-[0.2em] mb-1 font-bold">Consumption</p>
+          <p className="text-xl font-light text-red-500 tracking-tighter">{getCount('consumer')}</p>
+        </div>
+        <div className="bg-black p-4 text-center">
+          <p className="text-[7px] text-zinc-500 uppercase tracking-[0.2em] mb-1 font-bold">Balanced</p>
+          <p className="text-xl font-light text-yellow-400 tracking-tighter">{getCount('balanced')}</p>
         </div>
       </div>
     </div>

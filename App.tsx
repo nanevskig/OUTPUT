@@ -11,28 +11,62 @@ const App: React.FC = () => {
   const [state, setState] = useState<AppState>(loadState());
   const [currentView, setCurrentView] = useState<View>(View.DAILY);
   const [showSplash, setShowSplash] = useState(true);
+  const [todayKey, setTodayKey] = useState(getTodayKey());
 
+  // 1. Splash screen timer
   useEffect(() => {
-    // 1.5 second duration for the intro sequence every time the app loads
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 1500);
     return () => clearTimeout(timer);
   }, []);
 
+  // 2. Persistence
   useEffect(() => {
     saveState(state);
   }, [state]);
 
+  // 3. Midnight Reset Logic
+  // Ensures that if the app is open during midnight, the view resets automatically
+  useEffect(() => {
+    const updateMidnight = () => {
+      const now = new Date();
+      const night = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1, // tomorrow
+        0, 0, 0 // midnight
+      );
+      const msToMidnight = night.getTime() - now.getTime();
+
+      return setTimeout(() => {
+        setTodayKey(getTodayKey());
+        updateMidnight(); // Recurse for the next day
+      }, msToMidnight);
+    };
+
+    const timer = updateMidnight();
+    
+    // Also refresh on window focus to catch missed midnights
+    const handleFocus = () => setTodayKey(getTodayKey());
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
   const handleLogActivity = useCallback((type: ActivityType) => {
-    const today = getTodayKey();
+    const currentToday = getTodayKey();
     setState(prev => ({
       ...prev,
       logs: {
         ...prev.logs,
-        [today]: type
+        [currentToday]: type
       }
     }));
+    setTodayKey(currentToday);
   }, []);
 
   const updateState = useCallback((updates: Partial<AppState>) => {
@@ -42,13 +76,13 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (currentView) {
       case View.DAILY:
-        return <DailyInput onLog={handleLogActivity} existingLog={state.logs[getTodayKey()]} />;
+        return <DailyInput onLog={handleLogActivity} existingLog={state.logs[todayKey]} />;
       case View.HISTORY:
         return <History logs={state.logs} />;
       case View.SYSTEM:
         return <System state={state} updateState={updateState} />;
       default:
-        return <DailyInput onLog={handleLogActivity} existingLog={state.logs[getTodayKey()]} />;
+        return <DailyInput onLog={handleLogActivity} existingLog={state.logs[todayKey]} />;
     }
   };
 
@@ -59,7 +93,6 @@ const App: React.FC = () => {
           <h1 className="text-white text-4xl font-black italic tracking-tighter uppercase font-sans mb-4">
             output
           </h1>
-          {/* Minimalist loading line centered under the text */}
           <div className="w-16 h-[1px] bg-white/10 relative overflow-hidden">
             <div className="absolute inset-0 bg-white animate-loading-grow origin-left" />
           </div>

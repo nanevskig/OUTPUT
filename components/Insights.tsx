@@ -18,43 +18,54 @@ const Insights: React.FC<InsightsProps> = ({ logs }) => {
     const monthlyEntries = logEntries.filter(([date]) => date.startsWith(`${currentYear}-${String(currentMonthNum).padStart(2, '0')}`));
     const monthlyCreators = monthlyEntries.filter(([_, v]) => v === 'creator').length;
     const monthlyConsumers = monthlyEntries.filter(([_, v]) => v === 'consumer').length;
-    const monthlyRatio = monthlyEntries.length > 0 ? (monthlyCreators / (monthlyCreators + monthlyConsumers)) : 0.5;
+    const monthlyBalanced = monthlyEntries.filter(([_, v]) => v === 'balanced').length;
+    const monthlyTotal = monthlyEntries.length;
 
     // Yearly
     const yearlyEntries = logEntries.filter(([date]) => date.startsWith(`${currentYear}-`));
     const yearlyCreators = yearlyEntries.filter(([_, v]) => v === 'creator').length;
     const yearlyConsumers = yearlyEntries.filter(([_, v]) => v === 'consumer').length;
-    const totalYearlyLogged = yearlyCreators + yearlyConsumers;
-    const yearlyRatio = totalYearlyLogged > 0 ? (yearlyCreators / totalYearlyLogged) : 0;
+    const yearlyBalanced = yearlyEntries.filter(([_, v]) => v === 'balanced').length;
+    const totalYearlyLogged = yearlyEntries.length;
 
     return {
-      monthly: { creators: monthlyCreators, consumers: monthlyConsumers, total: monthlyEntries.length, ratio: monthlyRatio },
-      yearly: { creators: yearlyCreators, consumers: yearlyConsumers, total: totalYearlyLogged, ratio: yearlyRatio }
+      monthly: { creators: monthlyCreators, consumers: monthlyConsumers, balanced: monthlyBalanced, total: monthlyTotal },
+      yearly: { creators: yearlyCreators, consumers: yearlyConsumers, balanced: yearlyBalanced, total: totalYearlyLogged }
     };
   }, [logs, currentYear, currentMonthNum]);
 
-  const PieChart = ({ ratio }: { ratio: number }) => {
+  const DistributionChart = ({ creators, consumers, balanced, total }: { creators: number, consumers: number, balanced: number, total: number }) => {
     const size = 180;
-    const strokeWidth = 12;
+    const strokeWidth = 14;
     const center = size / 2;
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (ratio * circumference);
+
+    const creatorLen = total > 0 ? (creators / total) * circumference : 0;
+    const consumerLen = total > 0 ? (consumers / total) * circumference : 0;
+    const balancedLen = total > 0 ? (balanced / total) * circumference : 0;
 
     return (
       <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
-          {/* Background Ring (Consumer) */}
+          {/* Base Background */}
+          <circle cx={center} cy={center} r={radius} fill="transparent" stroke="white" strokeWidth={strokeWidth} className="opacity-5" />
+          
+          {/* Creator Segment (Green) */}
           <circle
             cx={center}
             cy={center}
             r={radius}
             fill="transparent"
-            stroke="#ef4444" // red-500
+            stroke="#10b981"
             strokeWidth={strokeWidth}
-            className="opacity-10"
+            strokeDasharray={`${creatorLen} ${circumference}`}
+            strokeDashoffset={0}
+            className="transition-all duration-1000 ease-out"
+            strokeLinecap={creatorLen > 0 ? "round" : "butt"}
           />
-          {/* Main Ring (Consumer base) */}
+          
+          {/* Consumer Segment (Red) */}
           <circle
             cx={center}
             cy={center}
@@ -62,29 +73,32 @@ const Insights: React.FC<InsightsProps> = ({ logs }) => {
             fill="transparent"
             stroke="#ef4444"
             strokeWidth={strokeWidth}
-            className="opacity-100"
+            strokeDasharray={`${consumerLen} ${circumference}`}
+            strokeDashoffset={-creatorLen}
+            className="transition-all duration-1000 ease-out"
+            strokeLinecap={consumerLen > 0 ? "round" : "butt"}
           />
-          {/* Progress Ring (Creator) */}
+
+          {/* Balanced Segment (Yellow) */}
           <circle
             cx={center}
             cy={center}
             r={radius}
             fill="transparent"
-            stroke="#10b981" // emerald-500
+            stroke="#facc15"
             strokeWidth={strokeWidth}
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            className="transition-all duration-1000 ease-out shadow-emerald-500/50"
-            style={{ filter: 'drop-shadow(0 0 4px rgba(16, 185, 129, 0.4))' }}
+            strokeDasharray={`${balancedLen} ${circumference}`}
+            strokeDashoffset={-(creatorLen + consumerLen)}
+            className="transition-all duration-1000 ease-out"
+            strokeLinecap={balancedLen > 0 ? "round" : "butt"}
           />
         </svg>
         <div className="absolute flex flex-col items-center">
           <span className="text-4xl font-black font-mono tracking-tighter leading-none">
-            {Math.round(ratio * 100)}%
+            {total}
           </span>
           <span className="text-[7px] font-bold font-pixel uppercase tracking-[0.2em] text-zinc-500 mt-2">
-            Output
+            TOTAL LOGS
           </span>
         </div>
       </div>
@@ -115,6 +129,7 @@ const Insights: React.FC<InsightsProps> = ({ logs }) => {
                 let color = 'bg-zinc-950';
                 if (type === 'creator') color = 'bg-emerald-500';
                 else if (type === 'consumer') color = 'bg-red-500';
+                else if (type === 'balanced') color = 'bg-yellow-400';
                 else if (isPast) color = 'bg-zinc-900';
 
                 return (
@@ -139,15 +154,20 @@ const Insights: React.FC<InsightsProps> = ({ logs }) => {
         <p className="text-zinc-600 text-[9px] font-bold tracking-[0.4em] uppercase mt-4 font-mono">Statistical Recap</p>
       </header>
 
-      {/* Yearly Pie Chart Section */}
+      {/* Yearly Pie Section */}
       <section className="border border-zinc-900 p-8 rounded-[40px] bg-zinc-950/20 flex flex-col items-center relative overflow-hidden">
-        <div className="absolute top-4 left-6 text-[8px] font-bold uppercase tracking-[0.4em] text-zinc-700 font-pixel">Yearly Balance</div>
+        <div className="absolute top-4 left-6 text-[8px] font-bold uppercase tracking-[0.4em] text-zinc-700 font-pixel">Distribution</div>
         
         <div className="mt-8 mb-8">
-          <PieChart ratio={stats.yearly.ratio} />
+          <DistributionChart 
+            creators={stats.yearly.creators} 
+            consumers={stats.yearly.consumers}
+            balanced={stats.yearly.balanced}
+            total={stats.yearly.total} 
+          />
         </div>
 
-        <div className="flex w-full justify-around gap-4 pt-4 border-t border-zinc-900/50">
+        <div className="grid grid-cols-3 w-full gap-4 pt-4 border-t border-zinc-900/50">
           <div className="text-center">
             <p className="text-[7px] text-zinc-600 font-pixel uppercase mb-1">Creators</p>
             <p className="text-lg font-bold font-mono text-emerald-500">{stats.yearly.creators}</p>
@@ -155,6 +175,10 @@ const Insights: React.FC<InsightsProps> = ({ logs }) => {
           <div className="text-center">
             <p className="text-[7px] text-zinc-600 font-pixel uppercase mb-1">Consumers</p>
             <p className="text-lg font-bold font-mono text-red-500">{stats.yearly.consumers}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[7px] text-zinc-600 font-pixel uppercase mb-1">Balanced</p>
+            <p className="text-lg font-bold font-mono text-yellow-400">{stats.yearly.balanced}</p>
           </div>
         </div>
       </section>
@@ -166,7 +190,7 @@ const Insights: React.FC<InsightsProps> = ({ logs }) => {
           <span className="text-[9px] font-bold font-mono text-zinc-600">{currentYear}</span>
         </div>
         <DensityGrid />
-        <div className="mt-6 flex justify-center gap-4">
+        <div className="mt-6 flex justify-center flex-wrap gap-4">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-[0.5px]" />
             <span className="text-[6px] font-bold font-pixel uppercase text-zinc-700 tracking-widest">Creator</span>
@@ -174,6 +198,10 @@ const Insights: React.FC<InsightsProps> = ({ logs }) => {
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-red-500 rounded-[0.5px]" />
             <span className="text-[6px] font-bold font-pixel uppercase text-zinc-700 tracking-widest">Consumer</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-[0.5px]" />
+            <span className="text-[6px] font-bold font-pixel uppercase text-zinc-700 tracking-widest">Balanced</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-zinc-900 rounded-[0.5px]" />
@@ -194,13 +222,17 @@ const Insights: React.FC<InsightsProps> = ({ logs }) => {
             <span className="text-[10px] text-zinc-400 font-mono">Consume</span>
             <span className="text-xl font-bold font-mono text-red-500">{stats.monthly.consumers}</span>
           </div>
+          <div className="flex justify-between items-baseline mt-1">
+            <span className="text-[10px] text-zinc-400 font-mono">Balance</span>
+            <span className="text-xl font-bold font-mono text-yellow-400">{stats.monthly.balanced}</span>
+          </div>
         </div>
         <div className="border border-zinc-900 p-6 rounded-[30px] bg-zinc-950/40 flex flex-col justify-center items-center">
            <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-[0.2em] font-pixel mb-2 text-center w-full">Current Month</p>
            <div className="text-2xl font-black font-mono">
-             {Math.round(stats.monthly.ratio * 100)}%
+             {stats.monthly.total}
            </div>
-           <p className="text-[7px] text-zinc-700 font-mono uppercase mt-1 tracking-tighter">Efficiency</p>
+           <p className="text-[7px] text-zinc-700 font-mono uppercase mt-1 tracking-tighter">TOTAL LOGGED</p>
         </div>
       </section>
     </div>
